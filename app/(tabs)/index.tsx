@@ -373,11 +373,12 @@ export default function AnalysisScreen() {
     setSelectedShifts(values.map(v => Number(v)));
   };
 
+  ////
   const generateHTML = () => {
     if (!analysisData) return '';
-  
+    
     const { metrics, controlCharts, distribution } = analysisData;
-  
+    
     return `
       <!DOCTYPE html>
       <html>
@@ -435,77 +436,12 @@ export default function AnalysisScreen() {
               border-radius: 8px;
               box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             }
-            .parameters {
-              display: grid;
-              grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-              gap: 15px;
-              margin-bottom: 20px;
-            }
-            .parameter {
-              background: #f8fafc;
-              padding: 15px;
-              border-radius: 6px;
-              border: 1px solid #e2e8f0;
-            }
-            .interpretation {
-              margin-top: 20px;
-              padding: 20px;
-              background: #f0f9ff;
-              border-radius: 8px;
-              border-left: 4px solid #0ea5e9;
-            }
-            .chart-title {
-              font-size: 1.2em;
-              font-weight: bold;
-              color: #1e293b;
-              margin-bottom: 15px;
-            }
-            .limits-container {
-              display: flex;
-              gap: 15px;
-              margin-bottom: 15px;
-            }
-            .limit-box {
-              flex: 1;
-              padding: 10px;
-              border-radius: 6px;
-              text-align: center;
-            }
-            .ucl { background: #fee2e2; }
-            .mean { background: #e0e7ff; }
-            .lcl { background: #fee2e2; }
           </style>
         </head>
         <body>
           <div class="header">
             <h1>Statistical Process Control Analysis Report</h1>
             <p>Generated on ${format(new Date(), 'PPP')}</p>
-          </div>
-  
-          <div class="section">
-            <h2>Analysis Parameters</h2>
-            <div class="parameters">
-              <div class="parameter">
-                <strong>Date Range:</strong><br>
-                ${format(startDate, 'PPP')} - ${format(endDate, 'PPP')}
-              </div>
-              <div class="parameter">
-                <strong>Material:</strong><br>
-                ${materials.find(m => m.MaterialCode === material)?.MaterialName || material}
-              </div>
-              <div class="parameter">
-                <strong>Operation:</strong><br>
-                ${operations.find(o => o.OperationCode === operation)?.OperationName || operation}
-              </div>
-              <div class="parameter">
-                <strong>Gauge:</strong><br>
-                ${gauges.find(g => g.GuageCode === gauge)?.GuageName || gauge}
-              </div>
-              <div class="parameter">
-                <strong>Sample Size:</strong><br>
-                ${sampleSize}
-              </div>
-            </div>
           </div>
   
           <div class="section">
@@ -516,7 +452,7 @@ export default function AnalysisScreen() {
                 <div class="metric-value">${metrics.xBar}</div>
               </div>
               <div class="metric-item">
-                <div class="metric-label">Standard Deviation (Overall)</div>
+                <div class="metric-label">Standard Deviation</div>
                 <div class="metric-value">${metrics.stdDevOverall}</div>
               </div>
               <div class="metric-item">
@@ -527,54 +463,27 @@ export default function AnalysisScreen() {
                 <div class="metric-label">Cpk</div>
                 <div class="metric-value">${metrics.cpk}</div>
               </div>
-              <div class="metric-item">
-                <div class="metric-label">Pp</div>
-                <div class="metric-value">${metrics.pp}</div>
-              </div>
-              <div class="metric-item">
-                <div class="metric-label">Ppk</div>
-                <div class="metric-value">${metrics.ppk}</div>
-              </div>
             </div>
           </div>
   
           <div class="section">
             <h2>Control Charts</h2>
-            
-            <div class="chart-container">
-              <div class="chart-title">X-Bar Chart</div>
-              <div class="limits-container">
-                <div class="limit-box ucl">
-                  <strong>UCL:</strong> ${controlCharts.limits.xBarUcl.toFixed(3)}
-                </div>
-                <div class="limit-box mean">
-                  <strong>Mean:</strong> ${controlCharts.limits.xBarMean.toFixed(3)}
-                </div>
-                <div class="limit-box lcl">
-                  <strong>LCL:</strong> ${controlCharts.limits.xBarLcl.toFixed(3)}
-                </div>
-              </div>
-            </div>
+            <!-- CONTROL_CHARTS_PLACEHOLDER -->
+          </div>
   
-            <div class="chart-container">
-              <div class="chart-title">Range Chart</div>
-              <div class="limits-container">
-                <div class="limit-box ucl">
-                  <strong>UCL:</strong> ${controlCharts.limits.rangeUcl.toFixed(3)}
-                </div>
-                <div class="limit-box mean">
-                  <strong>Mean:</strong> ${controlCharts.limits.rangeMean.toFixed(3)}
-                </div>
-                <div class="limit-box lcl">
-                  <strong>LCL:</strong> ${controlCharts.limits.rangeLcl.toFixed(3)}
-                </div>
-              </div>
-            </div>
+          <div class="section">
+            <h2>Histogram</h2>
+            <!-- HISTOGRAM_PLACEHOLDER -->
+          </div>
+  
+          <div class="section">
+            <h2>Distribution Analysis</h2>
+            <!-- DISTRIBUTION_PLACEHOLDER -->
           </div>
   
           <div class="section">
             <h2>Process Interpretation</h2>
-            <div class="interpretation">
+            <div style="padding: 20px; background: #f0f9ff; border-radius: 8px; border-left: 4px solid #0ea5e9;">
               <p><strong>Short-term Capability (Cp):</strong> ${metrics.cp >= 1.33 ? 'Process is capable' : 'Process needs improvement'}</p>
               <p><strong>Short-term Centered (Cpk):</strong> ${metrics.cpk >= 1.33 ? 'Process is centered' : 'Process centering needs improvement'}</p>
               <p><strong>Long-term Performance (Pp):</strong> ${metrics.pp >= 1.33 ? 'Process is performing well' : 'Long-term performance needs improvement'}</p>
@@ -585,7 +494,6 @@ export default function AnalysisScreen() {
       </html>
     `;
   };
-
   const handleDownload = async () => {
     if (!analysisData) {
       setError('No analysis data available to download');
