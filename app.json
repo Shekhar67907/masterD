@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "SPC-App",
-    "slug": "bolt-expo-nativewind",
+    "slug": "SPC-App",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -30,9 +30,9 @@
         "origin": false
       },
       "eas": {
-        "projectId": "ad6ae8e4-2edf-45ab-98b8-4b1951c4bdc4"
+        "projectId": "312ffdc1-f6c4-4ed5-92dd-6c298cb408ae"
       }
     },
-    "owner": "omiio"
-  }
+    "owner": "shekharmanhas43"
+}
 }
