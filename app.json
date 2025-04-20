@@ -12,8 +12,7 @@
       "supportsTablet": true
     },
    "android": {
-     "package": "com.SPC",
-     "cleartextTraffic": true
+     "package": "com.SPC"
      },
     "web": {
       "bundler": "metro",
