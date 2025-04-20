@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Pressable, Text, StyleSheet, ActivityIndicator, Platform, View } from 'react-native';
 import { Download } from 'lucide-react-native';
 import * as Print from 'expo-print';
@@ -29,40 +29,48 @@ export function DownloadReportButton({
     histogram?: string;
     distribution?: string;
   }>({});
+  const [capturing, setCapturing] = useState(false);
 
-  const handleChartCapture = (chartType: string) => (uri: string) => {
+  const handleChartCapture = useCallback((chartType: string) => (uri: string) => {
     setChartImages(prev => ({ ...prev, [chartType]: uri }));
-  };
+  }, []);
 
   const generatePDF = async (html: string) => {
-    // Insert captured chart images into the HTML
-    let finalHtml = html;
-    
-    if (chartImages.controlCharts) {
-      finalHtml = finalHtml.replace(
-        '<!-- CONTROL_CHARTS_PLACEHOLDER -->',
-        `<img src="data:image/png;base64,${chartImages.controlCharts}" style="width: 100%; max-width: 800px; margin: 20px 0;" />`
-      );
-    }
-    
-    if (chartImages.histogram) {
-      finalHtml = finalHtml.replace(
-        '<!-- HISTOGRAM_PLACEHOLDER -->',
-        `<img src="data:image/png;base64,${chartImages.histogram}" style="width: 100%; max-width: 800px; margin: 20px 0;" />`
-      );
-    }
-    
-    if (chartImages.distribution) {
-      finalHtml = finalHtml.replace(
-        '<!-- DISTRIBUTION_PLACEHOLDER -->',
-        `<img src="data:image/png;base64,${chartImages.distribution}" style="width: 100%; max-width: 800px; margin: 20px 0;" />`
-      );
-    }
+    setCapturing(true);
+    try {
+      // Wait for all charts to be captured
+      await new Promise(resolve => setTimeout(resolve, 1500));
 
-    return await Print.printToFileAsync({
-      html: finalHtml,
-      base64: false
-    });
+      let finalHtml = html;
+      
+      if (chartImages.controlCharts) {
+        finalHtml = finalHtml.replace(
+          '<!-- CONTROL_CHARTS_PLACEHOLDER -->',
+          `<img src="data:image/png;base64,${chartImages.controlCharts}" style="width: 100%; max-width: 100%; height: auto; margin: 20px 0;" />`
+        );
+      }
+      
+      if (chartImages.histogram) {
+        finalHtml = finalHtml.replace(
+          '<!-- HISTOGRAM_PLACEHOLDER -->',
+          `<img src="data:image/png;base64,${chartImages.histogram}" style="width: 100%; max-width: 100%; height: auto; margin: 20px 0;" />`
+        );
+      }
+      
+      if (chartImages.distribution) {
+        finalHtml = finalHtml.replace(
+          '<!-- DISTRIBUTION_PLACEHOLDER -->',
+          `<img src="data:image/png;base64,${chartImages.distribution}" style="width: 100%; max-width: 100%; height: auto; margin: 20px 0;" />`
+        );
+      }
+
+      return await Print.printToFileAsync({
+        html: finalHtml,
+        base64: false
+      });
+    } finally {
+      setCapturing(false);
+    }
   };
 
   const handleDownload = async () => {
@@ -118,12 +126,12 @@ export function DownloadReportButton({
         style={({ pressed }) => [
           styles.button,
           pressed && styles.buttonPressed,
-          (disabled || isLoading) && styles.buttonDisabled
+          (disabled || isLoading || capturing) && styles.buttonDisabled
         ]}
         onPress={handleDownload}
-        disabled={disabled || isLoading}
+        disabled={disabled || isLoading || capturing}
       >
-        {isLoading ? (
+        {(isLoading || capturing) ? (
           <ActivityIndicator color="#fff" />
         ) : (
           <>
